@@ -41,17 +41,34 @@ public class OpenAIService
 
         var base64Image = Convert.ToBase64String(imageBytes);
 
-        var request = CreateRequest(prompt, base64Image);
-        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        // Prepare request based on provider
+        HttpContent content;
+        bool isZhipuAI = _provider == ApiProvider.ZhipuAI;
+
+        if (isZhipuAI)
+        {
+            // GLM-4.6V requires JSON format with specific structure
+            var request = CreateRequest(prompt, base64Image);
+            var json = JsonSerializer.Serialize(request, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            content = new StringContent(json, Encoding.UTF8, "application/json");
+        }
+        else
+        {
+            // OpenAI format
+            var request = CreateRequest(prompt, base64Image);
+            var json = JsonSerializer.Serialize(request, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            content = new StringContent(json, Encoding.UTF8, "application/json");
+        }
 
         _httpClient.DefaultRequestHeaders.Clear();
 
         // Set authorization header based on provider
-        if (_provider == ApiProvider.ZhipuAI)
+        if (isZhipuAI)
         {
             var token = GenerateZhipuToken(_apiKey);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+            // GLM-4.6V might require additional headers
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
         }
         else
         {
@@ -68,9 +85,18 @@ public class OpenAIService
             }
 
             var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<ChatCompletionResponse>(responseJson);
 
-            return result?.Choices?.FirstOrDefault()?.Message?.Content;
+            // Use different response model for GLM-4.6V
+            if (isZhipuAI)
+            {
+                var result = JsonSerializer.Deserialize<ZhipuChatCompletionResponse>(responseJson);
+                return result?.Choices?.FirstOrDefault()?.Message?.Content;
+            }
+            else
+            {
+                var result = JsonSerializer.Deserialize<ChatCompletionResponse>(responseJson);
+                return result?.Choices?.FirstOrDefault()?.Message?.Content;
+            }
         }
         catch (Exception ex)
         {
@@ -78,50 +104,60 @@ public class OpenAIService
         }
     }
 
-    private ChatCompletionRequest CreateRequest(string prompt, string base64Image)
+    private object CreateRequest(string prompt, string base64Image)
     {
-        // Zhipu AI GLM-4V uses a different format for image content
+        // Zhipu AI GLM-4.6V uses different API format
         if (_provider == ApiProvider.ZhipuAI)
         {
-            return new ChatCompletionRequest
+            // GLM-4.6V uses a simpler message format for images
+            return new
             {
-                Model = _modelName,
-                Messages = new[]
+                model = _modelName,
+                messages = new[]
                 {
-                    new Message
+                    new
                     {
-                        Role = "user",
-                        Content = new object[]
+                        role = "user",
+                        content = new object[]
                         {
                             new { type = "text", text = prompt },
-                            new { type = "image_url", image_url = new { url = base64Image } }
+                            new
+                            {
+                                type = "image_url",
+                                image_url = new
+                                {
+                                    url = $"data:image/jpeg;base64,{base64Image}",
+                                    detail = "high"  // Add detail parameter for better image analysis
+                                }
+                            }
                         }
                     }
                 },
-                MaxTokens = _maxTokens,
-                Temperature = (float)_temperature
+                max_tokens = _maxTokens,
+                temperature = _temperature,
+                stream = false
             };
         }
         else
         {
-            // OpenAI format
-            return new ChatCompletionRequest
+            // OpenAI format - GPT-4o Vision requires data URL prefix
+            return new
             {
-                Model = _modelName,
-                Messages = new[]
+                model = _modelName,
+                messages = new[]
                 {
-                    new Message
+                    new
                     {
-                        Role = "user",
-                        Content = new object[]
+                        role = "user",
+                        content = new object[]
                         {
                             new { type = "text", text = prompt },
                             new { type = "image_url", image_url = new { url = $"data:image/png;base64,{base64Image}" } }
                         }
                     }
                 },
-                MaxTokens = _maxTokens,
-                Temperature = _temperature
+                max_tokens = _maxTokens,
+                temperature = _temperature
             };
         }
     }
@@ -250,5 +286,48 @@ public class OpenAIService
 
         [JsonPropertyName("total_tokens")]
         public int TotalTokens { get; set; }
+    }
+
+    // Zhipu AI GLM-4.6V response model
+    private class ZhipuChatCompletionResponse
+    {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
+        [JsonPropertyName("object")]
+        public string? ObjectType { get; set; }
+
+        [JsonPropertyName("created")]
+        public long Created { get; set; }
+
+        [JsonPropertyName("model")]
+        public string? Model { get; set; }
+
+        [JsonPropertyName("choices")]
+        public ZhipuChoice[]? Choices { get; set; }
+
+        [JsonPropertyName("usage")]
+        public Usage? Usage { get; set; }
+    }
+
+    private class ZhipuChoice
+    {
+        [JsonPropertyName("index")]
+        public int Index { get; set; }
+
+        [JsonPropertyName("message")]
+        public ZhipuMessageContent? Message { get; set; }
+
+        [JsonPropertyName("finish_reason")]
+        public string? FinishReason { get; set; }
+    }
+
+    private class ZhipuMessageContent
+    {
+        [JsonPropertyName("role")]
+        public string? Role { get; set; }
+
+        [JsonPropertyName("content")]
+        public string? Content { get; set; }
     }
 }

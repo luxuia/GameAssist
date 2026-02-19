@@ -16,7 +16,7 @@ public class AppConfig
     public string ZhipuEndpoint { get; set; } = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
 
     // Model Configuration
-    public string ModelName { get; set; } = "gpt-4o";
+    public string ModelName { get; set; } = Provider == ApiProvider.ZhipuAI ? "glm-4v-6" : "gpt-4o";
     public int MaxTokens { get; set; } = 500;
     public double Temperature { get; set; } = 0.7;
 
