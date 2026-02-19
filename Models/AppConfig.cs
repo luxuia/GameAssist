@@ -23,7 +23,7 @@ public class AppConfig
     {
         return Provider switch
         {
-            ApiProvider.ZhipuAI => "glm-4v-6",
+            ApiProvider.ZhipuAI => "glm-4.6v",
             _ => "gpt-4o"
         };
     }

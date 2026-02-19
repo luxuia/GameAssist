@@ -176,7 +176,7 @@ public async Task<string?> AnalyzeImageAsync(byte[] imageBytes, string prompt, C
 - 图像数据使用 base64 编码
 
 ### 修改 GLM-4V-6 API 集成时
-- GLM-4V-6 使用与 GLM-4V 相同的 API 端点，但模型名称为 `glm-4v-6`
+- GLM-4.6V 使用与 GLM-4V 相同的 API 端点，但模型名称为 `glm-4.6v`
 - 图像 URL 格式：`data:image/jpeg;base64,{base64Image}`
 - 添加 `detail: "high"` 参数以提高分析质量
 - 需要使用 JWT token 认证，使用 id.secret 格式的 API Key
@@ -184,7 +184,7 @@ public async Task<string?> AnalyzeImageAsync(byte[] imageBytes, string prompt, C
 ### 测试 API 集成
 - 使用 Settings 窗口的 "Test API" 按钮
 - **OpenAI**: 需要先配置有效的 OpenAI API Key
-- **Zhipu AI**: 需要配置 id.secret 格式的 API Key，推荐使用 glm-4v-6 模型
+- **Zhipu AI**: 需要配置 id.secret 格式的 API Key，推荐使用 glm-4.6v 模型
 
 ### 调试功能
 - **上传截图（Upload Screenshot）**: 无需运行 Dota 2，直接上传本地截图进行分析
@@ -369,7 +369,7 @@ EOF
   "Provider": 1,
   "ZhipuApiKey": "your-id.your-secret",
   "ZhipuEndpoint": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-  "ModelName": "glm-4v-6",
+  "ModelName": "glm-4.6v",
   "MaxTokens": 500,
   "Temperature": 0.7,
   "IntervalSeconds": 60,

@@ -41,7 +41,7 @@
                             <ComboBoxItem Content="gpt-4o-mini" Tag="OpenAI"/>
                             <ComboBoxItem Content="gpt-4-turbo" Tag="OpenAI"/>
                             <ComboBoxItem Content="gpt-4-vision-preview" Tag="OpenAI"/>
-                            <ComboBoxItem Content="glm-4v-6" Tag="ZhipuAI"/>
+                            <ComboBoxItem Content="glm-4.6v" Tag="ZhipuAI"/>
                             <ComboBoxItem Content="glm-4v-flash" Tag="ZhipuAI"/>
                         </ComboBox>
 

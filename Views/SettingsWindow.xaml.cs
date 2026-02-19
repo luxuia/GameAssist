@@ -84,7 +84,7 @@ public partial class SettingsWindow : Window
             // Select Zhipu model if current model is OpenAI
             if (_config.ModelName.StartsWith("gpt") || string.IsNullOrEmpty(_config.ModelName))
             {
-                SelectModel("glm-4v-6");
+                SelectModel("glm-4.6v");
             }
             else
             {
