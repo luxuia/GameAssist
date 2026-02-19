@@ -34,7 +34,7 @@ public class AppConfig
     public int IntervalSeconds { get; set; } = 60;
     public bool Dota2Only { get; set; } = true;
     public bool ShowPreview { get; set; } = true;
-    public PromptType SelectedPrompt { get; set; } = PromptType.Default;
+    public PromptType SelectedPrompt { get; set; } = PromptType.Smart;
     public string CustomPrompt { get; set; } = string.Empty;
 
     // Overlay Settings
@@ -96,6 +96,7 @@ public class AppConfig
 public enum PromptType
 {
     Default,
+    Smart,
     LaningPhase,
     TeamFight,
     Itemization,

@@ -107,6 +107,7 @@
                         <TextBlock Text="Prompt Type:" Margin="0,0,0,5"/>
                         <ComboBox x:Name="PromptTypeBox" Width="200" HorizontalAlignment="Left" Margin="0,0,0,10" SelectionChanged="PromptTypeBox_SelectionChanged">
                             <ComboBoxItem Content="Default"/>
+                            <ComboBoxItem Content="Smart (智能分析)"/>
                             <ComboBoxItem Content="Laning Phase"/>
                             <ComboBoxItem Content="Team Fight"/>
                             <ComboBoxItem Content="Itemization"/>
