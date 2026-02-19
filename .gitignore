@@ -1,0 +1,84 @@
+# Binaries
+*.exe
+*.dll
+*.pdb
+*.so
+*.dylib
+*.app
+*.msi
+*.dmg
+*.deb
+*.rpm
+
+# Build outputs
+bin/
+obj/
+TestResults/
+TestResults/
+.vs/
+.vscode/
+
+# NuGet packages
+packages/
+*.nupkg
+*.snupkg
+
+# User-specific files
+user*.config
+*.user
+*.suo
+*.cache
+*.ilk
+*.exp
+*.lib
+
+# Visual Studio
+*.vspscc
+*.vssscc
+._*
+.vs/
+*.vsix
+
+# Rider
+.idea/
+
+# WPF specific
+*.xap
+*.appx
+
+# Configuration files with secrets
+config.json
+*.config (secrets)
+secrets.json
+local.json
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# OpenAI API key (should not be committed)
+OpenAIKey.txt
+*.key
+
+# GameAssist specific
+screenshots/
+captures/
+uploads/
+
+# Publish output
+publish/
