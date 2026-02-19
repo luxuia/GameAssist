@@ -1,4 +1,6 @@
+using System;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -9,6 +11,9 @@ public partial class OverlayWindow : Window
     private DispatcherTimer? _autoHideTimer;
     private double _fontSize = 16;
     private int _autoHideSeconds = 30;
+    private bool _isDragging = false;
+    private Point _dragStartPoint;
+    private Point _windowStartPoint;
 
     public OverlayWindow()
     {
@@ -99,5 +104,75 @@ public partial class OverlayWindow : Window
     {
         _autoHideTimer?.Stop();
         base.OnClosed(e);
+    }
+
+    // Window drag handlers
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        // Only start dragging if left button is clicked on the drag area
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            _isDragging = true;
+            _dragStartPoint = e.GetPosition(this);
+            _windowStartPoint = new Point(Left, Top);
+            this.CaptureMouse();
+        }
+    }
+
+    private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        // If click is on the drag handle, start dragging
+        if (DragHandle.IsMouseOver)
+        {
+            _isDragging = true;
+            _dragStartPoint = e.GetPosition(this);
+            _windowStartPoint = new Point(Left, Top);
+            this.CaptureMouse();
+            e.Handled = true;
+        }
+    }
+
+    private void DragHandle_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        // Handle drag handle click
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            _isDragging = true;
+            _dragStartPoint = e.GetPosition(this);
+            _windowStartPoint = new Point(Left, Top);
+            this.CaptureMouse();
+            e.Handled = true;
+        }
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+
+        if (_isDragging)
+        {
+            Point currentPoint = e.GetPosition(this);
+            double deltaX = currentPoint.X - _dragStartPoint.X;
+            double deltaY = currentPoint.Y - _dragStartPoint.Y;
+
+            Left = _windowStartPoint.X + deltaX;
+            Top = _windowStartPoint.Y + deltaY;
+        }
+    }
+
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+
+        if (_isDragging)
+        {
+            _isDragging = false;
+            this.ReleaseMouseCapture();
+        }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Hide();
     }
 }

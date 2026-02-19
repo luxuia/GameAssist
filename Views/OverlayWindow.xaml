@@ -7,7 +7,8 @@
         Topmost="True"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
-        IsHitTestVisible="False">
+        MouseDown="Window_MouseDown"
+        PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown">
     <Window.Resources>
         <Style x:Key="SuggestionText" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
@@ -32,11 +33,56 @@
             <Border.Effect>
                 <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.5"/>
             </Border.Effect>
-            <StackPanel Margin="10">
-                <TextBlock x:Name="SuggestionTextBlock"
-                           Style="{StaticResource SuggestionText}"
-                           Text="Loading suggestion..."/>
-            </StackPanel>
+            <Grid>
+                <!-- Drag Handle Area -->
+                <Border x:Name="DragHandle"
+                        Background="Transparent"
+                        Height="30"
+                        VerticalAlignment="Top"
+                        Cursor="Hand"
+                        MouseDown="DragHandle_MouseDown">
+                    <Grid>
+                        <!-- Drag Handle Indicator -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0">
+                            <Rectangle Width="20" Height="3" Fill="White" Opacity="0.3" Margin="0,1"/>
+                            <Rectangle Width="20" Height="3" Fill="White" Opacity="0.3" Margin="2,1"/>
+                            <Rectangle Width="20" Height="3" Fill="White" Opacity="0.3" Margin="2,1"/>
+                        </StackPanel>
+
+                        <!-- Title -->
+                        <TextBlock Text="Dota 2 Assistant"
+                                   Foreground="White"
+                                   Opacity="0.7"
+                                   FontSize="12"
+                                   FontWeight="Light"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Margin="35,0,0,0"/>
+
+                        <!-- Close Button -->
+                        <Button x:Name="CloseButton"
+                                Content="✕"
+                                Foreground="White"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Width="20" Height="20"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Margin="5"
+                                FontSize="14"
+                                Click="CloseButton_Click"
+                                Cursor="Hand"
+                                Opacity="0.7"/>
+                    </Grid>
+                </Border>
+
+                <!-- Content Area -->
+                <StackPanel Margin="10,40,10,10">
+                    <TextBlock x:Name="SuggestionTextBlock"
+                               Style="{StaticResource SuggestionText}"
+                               Text="Loading suggestion..."/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 
