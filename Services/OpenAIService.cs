@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -104,21 +105,25 @@ public class OpenAIService
         }
     }
 
-    private object CreateRequest(string prompt, string base64Image)
+    private ChatCompletionRequest CreateRequest(string prompt, string base64Image)
     {
+        // Add system instruction to respond in Chinese
+        var systemPrompt = "你必须用中文回复所有内容。无论用户用什么语言提问，都要用中文回答。";
+
         // Zhipu AI GLM-4.6V uses different API format
         if (_provider == ApiProvider.ZhipuAI)
         {
             // GLM-4.6V uses a simpler message format for images
-            return new
+            return new ChatCompletionRequest
             {
-                model = _modelName,
-                messages = new[]
+                Model = _modelName,
+                Messages = new object[]
                 {
-                    new
+                    new SystemMessage { Role = "system", Content = systemPrompt },
+                    new Message
                     {
-                        role = "user",
-                        content = new object[]
+                        Role = "user",
+                        Content = new object[]
                         {
                             new { type = "text", text = prompt },
                             new
@@ -132,32 +137,33 @@ public class OpenAIService
                             }
                         }
                     }
-                },
-                max_tokens = _maxTokens,
-                temperature = _temperature,
-                stream = false
+                }.Cast<object>().ToArray(),
+                MaxTokens = _maxTokens,
+                Temperature = _temperature,
+                Stream = false
             };
         }
         else
         {
             // OpenAI format - GPT-4o Vision requires data URL prefix
-            return new
+            return new ChatCompletionRequest
             {
-                model = _modelName,
-                messages = new[]
+                Model = _modelName,
+                Messages = new object[]
                 {
-                    new
+                    new SystemMessage { Role = "system", Content = systemPrompt },
+                    new Message
                     {
-                        role = "user",
-                        content = new object[]
+                        Role = "user",
+                        Content = new object[]
                         {
                             new { type = "text", text = prompt },
                             new { type = "image_url", image_url = new { url = $"data:image/png;base64,{base64Image}" } }
                         }
                     }
-                },
-                max_tokens = _maxTokens,
-                temperature = _temperature
+                }.Cast<object>().ToArray(),
+                MaxTokens = _maxTokens,
+                Temperature = _temperature
             };
         }
     }
@@ -216,13 +222,16 @@ public class OpenAIService
         public string Model { get; set; } = string.Empty;
 
         [JsonPropertyName("messages")]
-        public Message[] Messages { get; set; } = Array.Empty<Message>();
+        public object[] Messages { get; set; } = Array.Empty<object>();
 
         [JsonPropertyName("max_tokens")]
         public int MaxTokens { get; set; }
 
         [JsonPropertyName("temperature")]
         public double Temperature { get; set; }
+
+        [JsonPropertyName("stream")]
+        public bool Stream { get; set; }
     }
 
     private class Message
@@ -231,7 +240,16 @@ public class OpenAIService
         public string Role { get; set; } = string.Empty;
 
         [JsonPropertyName("content")]
-        public object[] Content { get; set; } = Array.Empty<object>();
+        public object Content { get; set; } = Array.Empty<object>();
+    }
+
+    private class SystemMessage
+    {
+        [JsonPropertyName("role")]
+        public string Role { get; set; } = string.Empty;
+
+        [JsonPropertyName("content")]
+        public string Content { get; set; } = string.Empty;
     }
 
     private class ChatCompletionResponse
