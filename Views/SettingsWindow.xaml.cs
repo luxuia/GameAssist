@@ -101,7 +101,7 @@ public partial class SettingsWindow : Window
             // Select OpenAI model if current model is Zhipu
             if (_config.ModelName.StartsWith("glm"))
             {
-                SelectModel("gpt-4o");
+                SelectModel(_config.GetDefaultModel());
             }
             else
             {
@@ -201,7 +201,7 @@ public partial class SettingsWindow : Window
 
         if (ModelBox.SelectedItem is ComboBoxItem item)
         {
-            _config.ModelName = item.Content?.ToString() ?? "gpt-4o";
+            _config.ModelName = item.Content?.ToString() ?? _config.GetDefaultModel();
         }
 
         _config.IntervalSeconds = (int)IntervalSlider.Value;
@@ -237,10 +237,10 @@ public partial class SettingsWindow : Window
         {
             var service = new Services.OpenAIService();
 
-            string modelName = "gpt-4o";
+            string modelName = _config.GetDefaultModel();
             if (ModelBox.SelectedItem is ComboBoxItem item)
             {
-                modelName = item.Content?.ToString() ?? "gpt-4o";
+                modelName = item.Content?.ToString() ?? _config.GetDefaultModel();
             }
 
             service.Configure(_currentProvider, apiKey, EndpointBox.Text, modelName,
@@ -302,7 +302,7 @@ public partial class SettingsWindow : Window
                 ProviderBox.SelectedIndex = newProvider == ApiProvider.ZhipuAI ? 1 : 0;
                 UpdateApiProviderUI();
                 // Reselect the model since UpdateApiProviderUI might change selection
-                SelectModel(item.Content?.ToString() ?? "gpt-4o");
+                SelectModel(item.Content?.ToString() ?? _config.GetDefaultModel());
             }
         }
     }
