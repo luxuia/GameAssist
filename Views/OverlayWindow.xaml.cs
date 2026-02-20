@@ -117,10 +117,21 @@ public partial class OverlayWindow : Window
     {
         if (DragHandle.IsMouseOver)
         {
-            // 获取当前窗口的位置
-            _startLeft = Left;
-            _startTop = Top;
+            // 获取当前窗口的句柄和位置
+            IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            RECT rect;
+            if (NativeMethods.GetWindowRect(hWnd, out rect))
+            {
+                _startLeft = rect.Left;
+                _startTop = rect.Top;
+            }
+            else
+            {
+                _startLeft = Left;
+                _startTop = Top;
+            }
 
+            // 获取鼠标相对于屏幕的位置
             Point startPoint = e.GetPosition(null);
             _startX = startPoint.X;
             _startY = startPoint.Y;
@@ -128,6 +139,7 @@ public partial class OverlayWindow : Window
             Console.WriteLine($"MouseDown - Start Point: X={_startX}, Y={_startY}");
             Console.WriteLine($"Current Window Position: Left={_startLeft}, Top={_startTop}");
             Console.WriteLine($"Current Window Position (int): Left={(int)Math.Round(_startLeft)}, Top={(int)Math.Round(_startTop)}");
+
             this.CaptureMouse();
             e.Handled = true;
         }
