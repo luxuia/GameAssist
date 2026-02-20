@@ -60,6 +60,11 @@
                                       Background="#80000000"
                                       BorderBrush="#40000000"
                                       SelectionChanged="PromptTypeComboBox_SelectionChanged">
+                                <ComboBox.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#202020"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#303030"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
+                                </ComboBox.Resources>
                                 <ComboBoxItem Tag="0">Default</ComboBoxItem>
                                 <ComboBoxItem Tag="1">Hero Build</ComboBoxItem>
                                 <ComboBoxItem Tag="2">Laning</ComboBoxItem>
