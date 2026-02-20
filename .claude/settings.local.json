@@ -15,7 +15,10 @@
       "WebFetch(domain:store.steampowered.com)",
       "WebFetch(domain:imgur.com)",
       "WebFetch(domain:www.volcengine.com)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(tasklist:*)",
+      "Bash(exit)",
+      "Bash(compact)"
     ]
   }
 }
