@@ -22,6 +22,7 @@
                         <ComboBox x:Name="ProviderBox" Width="200" HorizontalAlignment="Left" Margin="0,0,0,10" SelectionChanged="ProviderBox_SelectionChanged">
                             <ComboBoxItem Content="OpenAI" Tag="OpenAI"/>
                             <ComboBoxItem Content="Zhipu AI (GLM-4.6v)" Tag="ZhipuAI"/>
+                            <ComboBoxItem Content="Doubao (豆包)" Tag="Doubao"/>
                         </ComboBox>
 
                         <TextBlock x:Name="ApiKeyLabel" Text="OpenAI API Key:" Margin="0,0,0,5"/>
@@ -43,6 +44,9 @@
                             <ComboBoxItem Content="gpt-4-vision-preview" Tag="OpenAI"/>
                             <ComboBoxItem Content="glm-4.6v" Tag="ZhipuAI"/>
                             <ComboBoxItem Content="glm-4v-flash" Tag="ZhipuAI"/>
+                            <ComboBoxItem Content="doubao-seed-2-0-code-preview-260215" Tag="Doubao"/>
+                            <ComboBoxItem Content="doubao-pro-32k-240615" Tag="Doubao"/>
+                            <ComboBoxItem Content="doubao-pro-4k-240615" Tag="Doubao"/>
                         </ComboBox>
 
                         <TextBlock Text="Max Tokens:" Margin="0,0,0,5"/>

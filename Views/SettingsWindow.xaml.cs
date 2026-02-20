@@ -34,7 +34,12 @@ public partial class SettingsWindow : Window
     {
         // Load API Provider
         _currentProvider = _config.Provider;
-        ProviderBox.SelectedIndex = _currentProvider == ApiProvider.ZhipuAI ? 1 : 0;
+        ProviderBox.SelectedIndex = _config.Provider switch
+        {
+            ApiProvider.ZhipuAI => 1,
+            ApiProvider.Doubao => 2,
+            _ => 0
+        };
 
         // Load model settings
         MaxTokensSlider.Value = _config.MaxTokens;
@@ -90,10 +95,27 @@ public partial class SettingsWindow : Window
             EndpointBox.Text = _config.ZhipuEndpoint;
             FilterModelList("ZhipuAI");
 
-            // Select Zhipu model if current model is OpenAI
-            if (_config.ModelName.StartsWith("gpt") || string.IsNullOrEmpty(_config.ModelName))
+            // Select Zhipu model if current model is not Zhipu
+            if (_config.ModelName.StartsWith("gpt") || _config.ModelName.StartsWith("doubao") || string.IsNullOrEmpty(_config.ModelName))
             {
                 SelectModel("glm-4.6v");
+            }
+            else
+            {
+                SelectModel(_config.ModelName);
+            }
+        }
+        else if (_currentProvider == ApiProvider.Doubao)
+        {
+            ApiKeyLabel.Text = "Doubao API Key:";
+            ApiKeyBox.Password = _config.DoubaoApiKey;
+            EndpointBox.Text = _config.DoubaoEndpoint;
+            FilterModelList("Doubao");
+
+            // Select Doubao model if current model is not Doubao
+            if (_config.ModelName.StartsWith("gpt") || _config.ModelName.StartsWith("glm") || string.IsNullOrEmpty(_config.ModelName))
+            {
+                SelectModel("doubao-seed-2-0-code-preview-260215");
             }
             else
             {
@@ -107,8 +129,8 @@ public partial class SettingsWindow : Window
             EndpointBox.Text = _config.OpenAiEndpoint;
             FilterModelList("OpenAI");
 
-            // Select OpenAI model if current model is Zhipu
-            if (_config.ModelName.StartsWith("glm"))
+            // Select OpenAI model if current model is Zhipu or Doubao
+            if (_config.ModelName.StartsWith("glm") || _config.ModelName.StartsWith("doubao"))
             {
                 SelectModel(_config.GetDefaultModel());
             }
@@ -198,6 +220,11 @@ public partial class SettingsWindow : Window
         {
             _config.ZhipuApiKey = ApiKeyBox.Password;
             _config.ZhipuEndpoint = EndpointBox.Text;
+        }
+        else if (_currentProvider == ApiProvider.Doubao)
+        {
+            _config.DoubaoApiKey = ApiKeyBox.Password;
+            _config.DoubaoEndpoint = EndpointBox.Text;
         }
         else
         {
@@ -294,7 +321,12 @@ public partial class SettingsWindow : Window
         if (ProviderBox.SelectedItem is ComboBoxItem item)
         {
             var providerTag = item.Tag?.ToString();
-            _currentProvider = providerTag == "ZhipuAI" ? ApiProvider.ZhipuAI : ApiProvider.OpenAI;
+            _currentProvider = providerTag switch
+            {
+                "ZhipuAI" => ApiProvider.ZhipuAI,
+                "Doubao" => ApiProvider.Doubao,
+                _ => ApiProvider.OpenAI
+            };
             UpdateApiProviderUI();
         }
     }
@@ -307,12 +339,22 @@ public partial class SettingsWindow : Window
         if (ModelBox.SelectedItem is ComboBoxItem item && item.Tag != null)
         {
             var providerTag = item.Tag.ToString();
-            var newProvider = providerTag == "ZhipuAI" ? ApiProvider.ZhipuAI : ApiProvider.OpenAI;
+            var newProvider = providerTag switch
+            {
+                "ZhipuAI" => ApiProvider.ZhipuAI,
+                "Doubao" => ApiProvider.Doubao,
+                _ => ApiProvider.OpenAI
+            };
 
             if (newProvider != _currentProvider)
             {
                 _currentProvider = newProvider;
-                ProviderBox.SelectedIndex = newProvider == ApiProvider.ZhipuAI ? 1 : 0;
+                ProviderBox.SelectedIndex = newProvider switch
+                {
+                    ApiProvider.ZhipuAI => 1,
+                    ApiProvider.Doubao => 2,
+                    _ => 0
+                };
                 UpdateApiProviderUI();
                 // Reselect the model since UpdateApiProviderUI might change selection
                 SelectModel(item.Content?.ToString() ?? _config.GetDefaultModel());

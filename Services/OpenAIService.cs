@@ -45,10 +45,11 @@ public class OpenAIService
         // Prepare request based on provider
         HttpContent content;
         bool isZhipuAI = _provider == ApiProvider.ZhipuAI;
+        bool isDoubao = _provider == ApiProvider.Doubao;
 
-        if (isZhipuAI)
+        if (isZhipuAI || isDoubao)
         {
-            // GLM-4.6V requires JSON format with specific structure
+            // GLM-4.6V and Doubao use JSON format with specific structure
             var request = CreateRequest(prompt, base64Image);
             var json = JsonSerializer.Serialize(request, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
             content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -68,7 +69,12 @@ public class OpenAIService
         {
             var token = GenerateZhipuToken(_apiKey);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-            // GLM-4.6V might require additional headers
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        }
+        else if (isDoubao)
+        {
+            // Doubao uses Bearer token with API Key
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
         }
         else
@@ -87,10 +93,16 @@ public class OpenAIService
 
             var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            // Use different response model for GLM-4.6V
+            // Use different response model for ZhipuAI and Doubao
             if (isZhipuAI)
             {
                 var result = JsonSerializer.Deserialize<ZhipuChatCompletionResponse>(responseJson);
+                return result?.Choices?.FirstOrDefault()?.Message?.Content;
+            }
+            else if (isDoubao)
+            {
+                // Doubao uses OpenAI-compatible response format
+                var result = JsonSerializer.Deserialize<ChatCompletionResponse>(responseJson);
                 return result?.Choices?.FirstOrDefault()?.Message?.Content;
             }
             else
@@ -110,7 +122,7 @@ public class OpenAIService
         // Add system instruction to respond in Chinese
         var systemPrompt = "你必须用中文回复所有内容。无论用户用什么语言提问，都要用中文回答。";
 
-        // Zhipu AI GLM-4.6V uses different API format
+        // Zhipu AI GLM-4.6.6V uses different API format
         if (_provider == ApiProvider.ZhipuAI)
         {
             // GLM-4.6V uses a simpler message format for images
@@ -141,6 +153,29 @@ public class OpenAIService
                 MaxTokens = _maxTokens,
                 Temperature = _temperature,
                 Stream = false
+            };
+        }
+        else if (_provider == ApiProvider.Doubao)
+        {
+            // Doubao (Volcengine) uses OpenAI-compatible format
+            return new ChatCompletionRequest
+            {
+                Model = _modelName,
+                Messages = new object[]
+                {
+                    new SystemMessage { Role = "system", Content = systemPrompt },
+                    new Message
+                    {
+                        Role = "user",
+                        Content = new object[]
+                        {
+                            new { type = "text", text = prompt },
+                            new { type = "image_url", image_url = new { url = $"data:image/jpeg;base64,{base64Image}" } }
+                        }
+                    }
+                }.Cast<object>().ToArray(),
+                MaxTokens = _maxTokens,
+                Temperature = _temperature
             };
         }
         else

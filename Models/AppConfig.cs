@@ -15,6 +15,10 @@ public class AppConfig
     public string ZhipuApiKey { get; set; } = string.Empty;
     public string ZhipuEndpoint { get; set; } = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
 
+    // Doubao (Volcengine) API Configuration
+    public string DoubaoApiKey { get; set; } = string.Empty;
+    public string DoubaoEndpoint { get; set; } = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+
     // Model Configuration
     public string ModelName { get; set; } = "gpt-4o";
 
@@ -24,6 +28,7 @@ public class AppConfig
         return Provider switch
         {
             ApiProvider.ZhipuAI => "glm-4.6v",
+            ApiProvider.Doubao => "doubao-seed-2-0-code-preview-260215",
             _ => "gpt-4o"
         };
     }
@@ -112,5 +117,6 @@ public enum PromptType
 public enum ApiProvider
 {
     OpenAI,
-    ZhipuAI
+    ZhipuAI,
+    Doubao
 }

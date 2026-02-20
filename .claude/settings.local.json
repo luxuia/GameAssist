@@ -11,7 +11,11 @@
       "Bash(git remote set-url:*)",
       "WebSearch",
       "Bash(dotnet run:*)",
-      "Bash(dotnet new:*)"
+      "Bash(dotnet new:*)",
+      "WebFetch(domain:store.steampowered.com)",
+      "WebFetch(domain:imgur.com)",
+      "WebFetch(domain:www.volcengine.com)",
+      "Bash(git checkout:*)"
     ]
   }
 }

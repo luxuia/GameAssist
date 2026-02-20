@@ -41,12 +41,12 @@ public partial class MainWindow : Window
 
     private void InitializeServices()
     {
-        var apiKey = _config.Provider == ApiProvider.ZhipuAI
-            ? _config.ZhipuApiKey
-            : _config.OpenAiApiKey;
-        var endpoint = _config.Provider == ApiProvider.ZhipuAI
-            ? _config.ZhipuEndpoint
-            : _config.OpenAiEndpoint;
+        var (apiKey, endpoint) = _config.Provider switch
+        {
+            ApiProvider.ZhipuAI => (_config.ZhipuApiKey, _config.ZhipuEndpoint),
+            ApiProvider.Doubao => (_config.DoubaoApiKey, _config.DoubaoEndpoint),
+            _ => (_config.OpenAiApiKey, _config.OpenAiEndpoint)
+        };
 
         _openAiService.Configure(
             _config.Provider,
@@ -60,7 +60,12 @@ public partial class MainWindow : Window
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        var providerName = _config.Provider == ApiProvider.ZhipuAI ? "Zhipu AI" : "OpenAI";
+        var providerName = _config.Provider switch
+        {
+            ApiProvider.ZhipuAI => "Zhipu AI",
+            ApiProvider.Doubao => "Doubao",
+            _ => "OpenAI"
+        };
         UpdateStatus($"Ready. Configure {providerName} API key in Settings to get started.");
         UpdateDota2Status();
 
@@ -93,10 +98,12 @@ public partial class MainWindow : Window
 
     private void StartAssistant()
     {
-        var apiKey = _config.Provider == ApiProvider.ZhipuAI
-            ? _config.ZhipuApiKey
-            : _config.OpenAiApiKey;
-        var providerName = _config.Provider == ApiProvider.ZhipuAI ? "Zhipu AI" : "OpenAI";
+        var (apiKey, providerName) = _config.Provider switch
+        {
+            ApiProvider.ZhipuAI => (_config.ZhipuApiKey, "Zhipu AI"),
+            ApiProvider.Doubao => (_config.DoubaoApiKey, "Doubao"),
+            _ => (_config.OpenAiApiKey, "OpenAI")
+        };
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
@@ -205,10 +212,12 @@ public partial class MainWindow : Window
 
                 UpdateStatus("Analyzing uploaded screenshot...");
 
-                var apiKey = _config.Provider == ApiProvider.ZhipuAI
-                    ? _config.ZhipuApiKey
-                    : _config.OpenAiApiKey;
-                var providerName = _config.Provider == ApiProvider.ZhipuAI ? "Zhipu AI" : "OpenAI";
+                var (apiKey, providerName) = _config.Provider switch
+                {
+                    ApiProvider.ZhipuAI => (_config.ZhipuApiKey, "Zhipu AI"),
+                    ApiProvider.Doubao => (_config.DoubaoApiKey, "Doubao"),
+                    _ => (_config.OpenAiApiKey, "OpenAI")
+                };
 
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
