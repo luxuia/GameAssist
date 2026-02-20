@@ -1,0 +1,5 @@
+# Sources for Dota 2 test screenshots:
+
+Reddit r/Dota2: https://reddit.com/r/Dota2
+Imgur: https://imgur.com (search 'Dota 2')
+Steam Screenshots: Run Dota 2 and press F12

@@ -29,6 +29,24 @@
 - [Reddit r/Dota2](https://reddit.com/r/Dota2) - 社区分享的游戏截图
 - [Dota 2 Wiki](https://dota2.fandom.com) - 游戏截图和图片
 
+**图片托管平台（搜索 "Dota 2" 或 "Dota 2 screenshot"）：**
+- [Imgur](https://imgur.com) - 搜索 Dota 2 相关图片
+- [Flickr](https://flickr.com) - Dota 2 游戏摄影
+- [Unsplash](https://unsplash.com) - 可能相关的游戏主题图片
+
+**数据集来源：**
+- [Kaggle](https://kaggle.com) - 搜索 "Dota 2 screenshot" 数据集
+- [GitHub](https://github.com) - 搜索 "Dota 2 screenshot" 仓库
+
+**官方来源：**
+- [Dota 2 官方网站](https://www.dota2.com) - 媒体区域
+- [Dota 2 Steam 商店页面](https://store.steampowered.com/app/570/Dota_2) - 官方截图
+- [Dota 2 Twitter/X](https://twitter.com/Dota2) - 官方发布的截图
+
+**社区来源：**
+- [Reddit r/Dota2](https://reddit.com/r/Dota2) - 社区分享的游戏截图
+- [Dota 2 Wiki](https://dota2.fandom.com) - 游戏截图和图片
+
 **数据集来源：**
 - [Kaggle](https://kaggle.com) - 搜索 "Dota 2 screenshot" 数据集
 - [GitHub](https://github.com) - 搜索 "Dota 2 screenshot" 仓库
