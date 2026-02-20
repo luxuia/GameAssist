@@ -127,6 +127,7 @@ public partial class OverlayWindow : Window
 
             Console.WriteLine($"MouseDown - Start Point: X={_startX}, Y={_startY}");
             Console.WriteLine($"Current Window Position: Left={_startLeft}, Top={_startTop}");
+            Console.WriteLine($"Current Window Position (int): Left={(int)Math.Round(_startLeft)}, Top={(int)Math.Round(_startTop)}");
             this.CaptureMouse();
             e.Handled = true;
         }
@@ -143,21 +144,17 @@ public partial class OverlayWindow : Window
             double deltaX = currentX - _startX;
             double deltaY = currentY - _startY;
 
-            // 只有当偏移量超过一定阈值时才更新窗口位置，避免微小偏移导致的抖动
-            const double movementThreshold = 1.0;
-            if (Math.Abs(deltaX) > movementThreshold || Math.Abs(deltaY) > movementThreshold)
-            {
-                double newLeft = _startLeft + deltaX;
-                double newTop = _startTop + deltaY;
+            // 直接使用整数坐标更新窗口位置，避免小数像素导致的抖动
+            int newLeft = (int)Math.Round(_startLeft + deltaX);
+            int newTop = (int)Math.Round(_startTop + deltaY);
 
-                // 使用WPF的属性设置窗口位置，而不是Windows API，这样可以使用浮点数坐标
-                Left = newLeft;
-                Top = newTop;
+            // 使用WPF的属性设置窗口位置，而不是Windows API
+            Left = newLeft;
+            Top = newTop;
 
-                Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
-                Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
-                Console.WriteLine($"MouseMove - New Position: Left={newLeft}, Top={newTop}");
-            }
+            Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
+            Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
+            Console.WriteLine($"MouseMove - New Position: Left={newLeft}, Top={newTop}");
         }
     }
 
