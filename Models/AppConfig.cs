@@ -47,6 +47,13 @@ public class AppConfig
     public int OverlayWidth { get; set; } = 600;
     public int OverlayFontSize { get; set; } = 16;
     public int OverlayAutoHideSeconds { get; set; } = 30;
+    public bool OverlayAutoHideEnabled { get; set; } = false;
+
+    // Screenshot Save Path
+    public string ScreenshotSavePath { get; set; } = System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        "Dota2Assistant",
+        "Screenshots");
 
     // Application Settings
     public bool AutoStart { get; set; } = false;

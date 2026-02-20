@@ -60,6 +60,7 @@ public partial class SettingsWindow : Window
         OverlayWidthLabel.Text = _config.OverlayWidth.ToString();
         FontSizeSlider.Value = _config.OverlayFontSize;
         FontSizeLabel.Text = _config.OverlayFontSize.ToString();
+        OverlayAutoHideEnabledCheckBox.IsChecked = _config.OverlayAutoHideEnabled;
         AutoHideSlider.Value = _config.OverlayAutoHideSeconds;
         AutoHideLabel.Text = $"{_config.OverlayAutoHideSeconds}s";
 
@@ -248,6 +249,7 @@ public partial class SettingsWindow : Window
         _config.OverlayEnabled = OverlayEnabledCheckBox.IsChecked ?? true;
         _config.OverlayWidth = (int)OverlayWidthSlider.Value;
         _config.OverlayFontSize = (int)FontSizeSlider.Value;
+        _config.OverlayAutoHideEnabled = OverlayAutoHideEnabledCheckBox.IsChecked ?? false;
         _config.OverlayAutoHideSeconds = (int)AutoHideSlider.Value;
 
         _config.SelectedPrompt = (PromptType)PromptTypeBox.SelectedIndex;

@@ -1,9 +1,11 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using GameAssist.Models;
 
 namespace GameAssist.Views;
 
@@ -12,6 +14,24 @@ public partial class OverlayWindow : Window
     private DispatcherTimer? _autoHideTimer;
     private double _fontSize = 16;
     private int _autoHideSeconds = 30;
+    private bool _autoHideEnabled = false;
+
+    // Event for prompt type change
+    public event EventHandler<PromptType>? PromptTypeChanged;
+
+    private PromptType _currentPromptType;
+    public PromptType CurrentPromptType
+    {
+        get => _currentPromptType;
+        set
+        {
+            if (_currentPromptType != value)
+            {
+                _currentPromptType = value;
+                PromptTypeChanged?.Invoke(this, value);
+            }
+        }
+    }
 
     public OverlayWindow()
     {
@@ -19,14 +39,39 @@ public partial class OverlayWindow : Window
         // 显示测试文本，方便调试拖动功能
         SuggestionTextBlock.Text = "这是一个测试文本，用于调试浮动窗口的拖动功能。\n\n您可以尝试拖动此窗口来测试是否还有抖动问题。\n\n如果您看到此文本，说明窗口已经正确显示。";
         MainGrid.Opacity = 1;
+
+        // 设置默认的 prompt type 为 Default
+        SetPromptType(PromptType.Default);
     }
 
-    public void Configure(int overlayWidth, int fontSize, int autoHideSeconds)
+    public void Configure(int overlayWidth, int fontSize, int autoHideSeconds, bool autoHideEnabled)
     {
         _fontSize = fontSize;
         _autoHideSeconds = autoHideSeconds;
+        _autoHideEnabled = autoHideEnabled;
         SuggestionBorder.MaxWidth = overlayWidth;
         SuggestionTextBlock.FontSize = fontSize;
+    }
+
+    public void SetPromptType(PromptType promptType)
+    {
+        _currentPromptType = promptType;
+        int promptValue = (int)promptType;
+
+        // Update ComboBox selection
+        foreach (ComboBoxItem item in PromptTypeComboBox.Items)
+        {
+            if (item.Tag is string tagStr && int.TryParse(tagStr, out int parsedTagValue) && parsedTagValue == promptValue)
+            {
+                PromptTypeComboBox.SelectedItem = item;
+                break;
+            }
+            else if (item.Tag is int intTagValue && intTagValue == promptValue)
+            {
+                PromptTypeComboBox.SelectedItem = item;
+                break;
+            }
+        }
     }
 
     public void PositionOverWindow(IntPtr targetWindow, RECT targetRect)
@@ -39,8 +84,11 @@ public partial class OverlayWindow : Window
 
     public void ShowSuggestion(string text)
     {
+        Console.WriteLine($"OverlayWindow.ShowSuggestion called with text length: {text.Length}");
+
         Dispatcher.Invoke(() =>
         {
+            Console.WriteLine($"Setting suggestion text: {text}");
             SuggestionTextBlock.Text = text;
             MainGrid.Opacity = 0;
 
@@ -57,8 +105,11 @@ public partial class OverlayWindow : Window
             };
             MainGrid.BeginAnimation(OpacityProperty, fadeIn);
 
-            // Reset auto-hide timer
-            ResetAutoHideTimer();
+            // Reset auto-hide timer only if enabled
+            if (_autoHideEnabled)
+            {
+                ResetAutoHideTimer();
+            }
         });
     }
 
@@ -200,5 +251,35 @@ public partial class OverlayWindow : Window
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         Hide();
+    }
+
+    private void PromptTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        try
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is ComboBoxItem comboBoxItem)
+            {
+                if (comboBoxItem.Tag is string tagStr && int.TryParse(tagStr, out int parsedTagValue))
+                {
+                    var promptType = (PromptType)parsedTagValue;
+                    Console.WriteLine($"PromptTypeComboBox_SelectionChanged: Selected {promptType}");
+                    CurrentPromptType = promptType;
+                }
+                else if (comboBoxItem.Tag is int intTagValue)
+                {
+                    var promptType = (PromptType)intTagValue;
+                    Console.WriteLine($"PromptTypeComboBox_SelectionChanged: Selected {promptType}");
+                    CurrentPromptType = promptType;
+                }
+                else
+                {
+                    Console.WriteLine($"PromptTypeComboBox_SelectionChanged: Tag is not a valid PromptType - {comboBoxItem.Tag}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PromptTypeComboBox_SelectionChanged Error: {ex}");
+        }
     }
 }

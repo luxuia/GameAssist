@@ -1,6 +1,8 @@
 <Window x:Class="GameAssist.Views.OverlayWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:GameAssist.Models"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -49,15 +51,24 @@
                             <Rectangle Width="20" Height="3" Fill="White" Opacity="0.3" Margin="2,1"/>
                         </StackPanel>
 
-                        <!-- Title -->
-                        <TextBlock Text="Dota 2 Assistant"
-                                   Foreground="White"
-                                   Opacity="0.7"
-                                   FontSize="12"
-                                   FontWeight="Light"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   Margin="35,0,0,0"/>
+                        <!-- Prompt Type Selector -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="35,0,10,0">
+                            <ComboBox x:Name="PromptTypeComboBox"
+                                      Width="120"
+                                      FontSize="12"
+                                      Foreground="White"
+                                      Background="#80000000"
+                                      BorderBrush="#40000000"
+                                      SelectionChanged="PromptTypeComboBox_SelectionChanged">
+                                <ComboBoxItem Tag="0">Default</ComboBoxItem>
+                                <ComboBoxItem Tag="1">Hero Build</ComboBoxItem>
+                                <ComboBoxItem Tag="2">Laning</ComboBoxItem>
+                                <ComboBoxItem Tag="3">Team Fight</ComboBoxItem>
+                                <ComboBoxItem Tag="4">Itemization</ComboBoxItem>
+                                <ComboBoxItem Tag="5">Late Game</ComboBoxItem>
+                                <ComboBoxItem Tag="6">Custom</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
 
                         <!-- Close Button -->
                         <Button x:Name="CloseButton"

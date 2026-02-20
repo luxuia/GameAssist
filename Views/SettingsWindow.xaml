@@ -97,6 +97,8 @@
                             <TextBlock x:Name="FontSizeLabel" Text="16" Width="50" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
 
+                        <CheckBox x:Name="OverlayAutoHideEnabledCheckBox" Content="Enable auto-hide" IsChecked="False" Margin="0,0,0,10"/>
+
                         <TextBlock Text="Auto-hide after (seconds):" Margin="0,0,0,5"/>
                         <StackPanel Orientation="Horizontal">
                             <Slider x:Name="AutoHideSlider" Width="200" Minimum="10" Maximum="60" Value="30" TickFrequency="5" IsSnapToTickEnabled="True"/>

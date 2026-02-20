@@ -243,6 +243,9 @@ public partial class MainWindow : Window
                         _viewModel.LastSuggestion = suggestion;
                         SuggestionText.Text = suggestion;
                         ShowOverlayButton.IsEnabled = true;
+
+                        // Show suggestion in overlay window
+                        ShowOverlay(suggestion, bmp.Width, bmp.Height);
                     });
 
                     UpdateStatus($"Suggestion generated at {DateTime.Now:HH:mm:ss}");
@@ -322,6 +325,9 @@ public partial class MainWindow : Window
                     {
                         ShowOverlay(suggestion, bmp.Width, bmp.Height);
                     }
+
+                    // Save screenshot and suggestion
+                    SaveScreenshotAndSuggestion(bmp, suggestion);
                 });
 
                 UpdateStatus($"Suggestion generated at {DateTime.Now:HH:mm:ss}");
@@ -390,8 +396,12 @@ public partial class MainWindow : Window
         if (_overlayWindow == null)
         {
             _overlayWindow = new OverlayWindow();
-            _overlayWindow.Configure(_config.OverlayWidth, _config.OverlayFontSize, _config.OverlayAutoHideSeconds);
+            _overlayWindow.Configure(_config.OverlayWidth, _config.OverlayFontSize, _config.OverlayAutoHideSeconds, _config.OverlayAutoHideEnabled);
+            _overlayWindow.PromptTypeChanged += OverlayWindow_PromptTypeChanged;
         }
+
+        // Set the current prompt type in the overlay window
+        _overlayWindow.SetPromptType(_config.SelectedPrompt);
 
         var dota2Window = FindDota2Window();
         if (dota2Window != IntPtr.Zero && NativeMethods.GetWindowRect(dota2Window, out RECT rect))
@@ -430,6 +440,96 @@ public partial class MainWindow : Window
                 ? (Style)Resources["Dota2ActiveStyle"]
                 : (Style)Resources["Dota2InactiveStyle"];
         });
+    }
+
+    private async void OverlayWindow_PromptTypeChanged(object? sender, PromptType e)
+    {
+        _config.SelectedPrompt = e;
+        AppConfig.Save(_config);
+
+        // If there's a last uploaded image, reanalyze it
+        if (_lastUploadedImageBytes != null)
+        {
+            await ReAnalyzeLastScreenshotAsync();
+        }
+        else
+        {
+            // Or capture a new screenshot for analysis
+            await CaptureAndAnalyzeAsync();
+        }
+    }
+
+    private async Task ReAnalyzeLastScreenshotAsync()
+    {
+        try
+        {
+            UpdateStatus("Reanalyzing with new prompt...");
+
+            var prompt = Dota2Prompts.GetPrompt(_config.SelectedPrompt, _config.CustomPrompt);
+            var suggestion = await _openAiService.AnalyzeImageAsync(_lastUploadedImageBytes!, prompt);
+
+            if (!string.IsNullOrEmpty(suggestion))
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    _viewModel.LastSuggestion = suggestion;
+                    SuggestionText.Text = suggestion;
+
+                    if (_config.OverlayEnabled)
+                    {
+                        Console.WriteLine($"Reanalyze: Calling ShowOverlay with suggestion length: {suggestion.Length}");
+                        ShowOverlay(suggestion, _lastUploadedImageWidth, _lastUploadedImageHeight);
+                    }
+                });
+
+                UpdateStatus($"Suggestion regenerated at {DateTime.Now:HH:mm:ss}");
+            }
+            else
+            {
+                UpdateStatus("No suggestion returned.");
+            }
+        }
+        catch (Exception ex)
+        {
+            UpdateStatus($"Error reanalyzing: {ex.Message}");
+            Console.WriteLine($"Error: {ex}");
+        }
+    }
+
+    private void SaveScreenshotAndSuggestion(Bitmap bmp, string suggestion)
+    {
+        try
+        {
+            string gameSessionFolder = GetGameSessionFolder();
+            if (!System.IO.Directory.Exists(gameSessionFolder))
+            {
+                System.IO.Directory.CreateDirectory(gameSessionFolder);
+            }
+
+            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            string screenshotPath = System.IO.Path.Combine(gameSessionFolder, $"screenshot_{timestamp}.png");
+            bmp.Save(screenshotPath, ImageFormat.Png);
+
+            string suggestionPath = System.IO.Path.Combine(gameSessionFolder, $"suggestion_{timestamp}.txt");
+            System.IO.File.WriteAllText(suggestionPath, suggestion);
+
+            Console.WriteLine($"Screenshot and suggestion saved to: {gameSessionFolder}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving screenshot: {ex.Message}");
+        }
+    }
+
+    private string GetGameSessionFolder()
+    {
+        string baseFolder = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "Dota2Assistant",
+            "Sessions");
+
+        string today = DateTime.Now.ToString("yyyyMMdd");
+        return System.IO.Path.Combine(baseFolder, today, $"Session_{DateTime.Now.ToString("HHmmss")}");
     }
 
     protected override void OnClosed(EventArgs e)
