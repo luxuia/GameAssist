@@ -21,6 +21,21 @@ public static class Dota2Prompts
     public const string LateGame = "这是一张 DOTA 2 后期的截图。分析：1) 上高地时机，2) 买活考虑因素，3) 分带机会，4) Roshan/不朽盾优先级。 " +
         "请用中文回复，控制在2-3句话。";
 
+    public const string HeroBuild = "请根据这张 DOTA 2 截图分析双方英雄选择（己方5位英雄和敌方5位英雄），然后给出以下建议：\n\n" +
+        "**己方阵容分析**：\n" +
+        "- 识别5位英雄的角色定位（1号位、2号位、3号位、4号位、5号位）\n" +
+        "- 分析阵容优劣势（控制、爆发、推塔、续航）\n\n" +
+        "**装备搭配建议**：\n" +
+        "- 针对己方每个英雄推荐核心装备顺序\n" +
+        "- 考虑经济节奏（优势期可以出大件，劣势期优先保命装）\n" +
+        "- 推荐针对性出装方案（压制敌方阵容的装备）\n\n" +
+        "**技能套路建议**：\n" +
+        "- 推荐英雄之间的技能联动组合\n" +
+        "- 团战时的先手技能顺序\n" +
+        "- 反制敌方关键技能的应对策略\n" +
+        "- 阵守转换时机\n\n\n" +
+        "请用中文回复，控制在5-8句话。";
+
     /// <summary>
     /// 获取智能提示词，让 AI 自动分析游戏状态并给出建议
     /// </summary>
@@ -41,59 +56,6 @@ public static class Dota2Prompts
     }
 
     /// <summary>
-    /// 获取智能选择的提示词，根据游戏情况自动选择最合适的提示词类型
-    /// </summary>
-    /// <param name="gameTime">游戏时间（分钟）</param>
-    /// <param name="playerLevel">玩家等级</param>
-    /// <param name="netWorth">玩家经济净价值</param>
-    /// <param type="teamLevel">平均团队等级</param>
-    /// <param type="teamNetWorth">团队经济净价值</param>
-    /// <returns>最合适的提示词</returns>
-    public static string GetSmartPrompt(int gameTime, int playerLevel, long netWorth,
-                                       int teamLevel, long teamNetWorth)
-    {
-        // 分析游戏阶段和情况
-        if (gameTime <= 5)
-        {
-            // 早期对线期
-            return LaningPhase;
-        }
-        else if (gameTime <= 15)
-        {
-            // 中期，查看是否有团战迹象
-            if (teamLevel >= 6 && playerLevel >= 6)
-            {
-                // 有关键技能，可能发生团战
-                return TeamFight;
-            }
-            else
-            {
-                // 仍然是发育阶段
-                return Itemization;
-            }
-        }
-        else if (gameTime <= 30)
-        {
-            // 中期到后期过渡
-            if (netWorth >= 20000 || teamNetWorth >= 50000)
-            {
-                // 经济领先，可以开始分带
-                return Itemization;
-            }
-            else
-            {
-                // 激烈期，团战频繁
-                return TeamFight;
-            }
-        }
-        else
-        {
-            // 后期
-            return LateGame;
-        }
-    }
-
-    /// <summary>
     /// 获取提示词
     /// </summary>
     public static string GetPrompt(PromptType type, string customPrompt = "")
@@ -101,7 +63,7 @@ public static class Dota2Prompts
         return type switch
         {
             PromptType.Default => Default,
-            PromptType.Smart => GetSmartPrompt(),
+            PromptType.Smart => HeroBuild,
             PromptType.LaningPhase => LaningPhase,
             PromptType.TeamFight => TeamFight,
             PromptType.Itemization => Itemization,
