@@ -13,37 +13,6 @@ public partial class OverlayWindow : Window
     private double _fontSize = 16;
     private int _autoHideSeconds = 30;
 
-    private int _integerLeft;
-    private int _integerTop;
-
-    public new double Left
-    {
-        get => base.Left;
-        set
-        {
-            int intValue = (int)Math.Round(value);
-            if (intValue != _integerLeft)
-            {
-                _integerLeft = intValue;
-                base.Left = _integerLeft;
-            }
-        }
-    }
-
-    public new double Top
-    {
-        get => base.Top;
-        set
-        {
-            int intValue = (int)Math.Round(value);
-            if (intValue != _integerTop)
-            {
-                _integerTop = intValue;
-                base.Top = _integerTop;
-            }
-        }
-    }
-
     public OverlayWindow()
     {
         InitializeComponent();
@@ -139,26 +108,22 @@ public partial class OverlayWindow : Window
     }
 
     // Window drag handlers
-    private int _startX;
-    private int _startY;
-    private int _startLeft;
-    private int _startTop;
+    private double _startX;
+    private double _startY;
+    private double _startLeft;
+    private double _startTop;
 
     private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (DragHandle.IsMouseOver)
         {
-            // 获取当前窗口的句柄和位置
-            IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            if (NativeMethods.GetWindowRect(hWnd, out RECT rect))
-            {
-                _startLeft = rect.Left;
-                _startTop = rect.Top;
-            }
+            // 获取当前窗口的位置
+            _startLeft = Left;
+            _startTop = Top;
 
             Point startPoint = e.GetPosition(null);
-            _startX = (int)Math.Round(startPoint.X);
-            _startY = (int)Math.Round(startPoint.Y);
+            _startX = startPoint.X;
+            _startY = startPoint.Y;
 
             Console.WriteLine($"MouseDown - Start Point: X={_startX}, Y={_startY}");
             Console.WriteLine($"Current Window Position: Left={_startLeft}, Top={_startTop}");
@@ -172,36 +137,33 @@ public partial class OverlayWindow : Window
         if (this.IsMouseCaptured && e.LeftButton == MouseButtonState.Pressed)
         {
             Point currentPoint = e.GetPosition(null);
-            int currentX = (int)Math.Round(currentPoint.X);
-            int currentY = (int)Math.Round(currentPoint.Y);
+            double currentX = currentPoint.X;
+            double currentY = currentPoint.Y;
 
-            int deltaX = currentX - _startX;
-            int deltaY = currentY - _startY;
+            double deltaX = currentX - _startX;
+            double deltaY = currentY - _startY;
 
-            int newLeft = _startLeft + deltaX;
-            int newTop = _startTop + deltaY;
+            // 只有当偏移量超过一定阈值时才更新窗口位置，避免微小偏移导致的抖动
+            const double movementThreshold = 1.0;
+            if (Math.Abs(deltaX) > movementThreshold || Math.Abs(deltaY) > movementThreshold)
+            {
+                double newLeft = _startLeft + deltaX;
+                double newTop = _startTop + deltaY;
 
-            // 使用Windows API直接设置窗口位置
-            IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            NativeMethods.SetWindowPos(
-                hWnd,
-                IntPtr.Zero,
-                newLeft,
-                newTop,
-                0,
-                0,
-                NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE
-            );
+                // 使用WPF的属性设置窗口位置，而不是Windows API，这样可以使用浮点数坐标
+                Left = newLeft;
+                Top = newTop;
 
-            Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
-            Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
-            Console.WriteLine($"MouseMove - New Position: Left={newLeft}, Top={newTop}");
+                Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
+                Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
+                Console.WriteLine($"MouseMove - New Position: Left={newLeft}, Top={newTop}");
 
-            // 更新起始位置，使下一次移动基于当前位置计算偏移量
-            _startLeft = newLeft;
-            _startTop = newTop;
-            _startX = currentX;
-            _startY = currentY;
+                // 更新起始位置，使下一次移动基于当前位置计算偏移量
+                _startLeft = newLeft;
+                _startTop = newTop;
+                _startX = currentX;
+                _startY = currentY;
+            }
         }
     }
 
