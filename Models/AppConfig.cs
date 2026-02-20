@@ -32,7 +32,7 @@ public class AppConfig
             _ => "gpt-4o"
         };
     }
-    public int MaxTokens { get; set; } = 500;
+    public int MaxTokens { get; set; } = 1500;
     public double Temperature { get; set; } = 0.7;
 
     // Analysis Settings

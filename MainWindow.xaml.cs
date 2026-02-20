@@ -264,11 +264,10 @@ public partial class MainWindow : Window
 
     private void ShowOverlayButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(_viewModel.LastSuggestion) && _lastUploadedImageBytes != null)
-        {
-            ShowOverlay(_viewModel.LastSuggestion, _lastUploadedImageWidth, _lastUploadedImageHeight);
-            UpdateStatus("Overlay displayed.");
-        }
+        // 即使没有截图，也能显示测试用的浮动窗口
+        string testText = "这是一个测试文本，用于调试浮动窗口的拖动功能。\n\n您可以尝试拖动此窗口来测试是否还有抖动问题。\n\n如果您看到此文本，说明窗口已经正确显示。";
+        ShowOverlay(testText, 800, 600);
+        UpdateStatus("Overlay displayed.");
     }
 
     private async Task CaptureAndAnalyzeAsync()

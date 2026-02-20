@@ -159,7 +159,7 @@
                     <Button x:Name="StopButton" Content="Stop" Style="{StaticResource StopButton}" Click="StopButton_Click" IsEnabled="False"/>
                     <Button x:Name="CaptureButton" Content="Capture Now" Style="{StaticResource CaptureButton}" Click="CaptureButton_Click"/>
                     <Button x:Name="UploadButton" Content="Upload Screenshot" Style="{StaticResource UploadButton}" Click="UploadButton_Click"/>
-                    <Button x:Name="ShowOverlayButton" Content="Show Overlay" Style="{StaticResource UploadButton}" Click="ShowOverlayButton_Click" IsEnabled="False"/>
+                    <Button x:Name="ShowOverlayButton" Content="Show Overlay" Style="{StaticResource UploadButton}" Click="ShowOverlayButton_Click" IsEnabled="True"/>
                     <Button x:Name="SettingsButton" Content="Settings" Style="{StaticResource SettingsButton}" Click="SettingsButton_Click"/>
                 </StackPanel>
             </Grid>

@@ -7,8 +7,9 @@
         Topmost="True"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
-        MouseDown="Window_MouseDown"
-        PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown">
+        PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown"
+        PreviewMouseMove="Window_PreviewMouseMove"
+        PreviewMouseLeftButtonUp="Window_PreviewMouseLeftButtonUp">
     <Window.Resources>
         <Style x:Key="SuggestionText" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
@@ -39,8 +40,7 @@
                         Background="Transparent"
                         Height="30"
                         VerticalAlignment="Top"
-                        Cursor="Hand"
-                        MouseDown="DragHandle_MouseDown">
+                        Cursor="Hand">
                     <Grid>
                         <!-- Drag Handle Indicator -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0">

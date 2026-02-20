@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -11,13 +12,44 @@ public partial class OverlayWindow : Window
     private DispatcherTimer? _autoHideTimer;
     private double _fontSize = 16;
     private int _autoHideSeconds = 30;
-    private bool _isDragging = false;
-    private Point _dragStartPoint;
-    private Point _windowStartPoint;
+
+    private int _integerLeft;
+    private int _integerTop;
+
+    public new double Left
+    {
+        get => base.Left;
+        set
+        {
+            int intValue = (int)Math.Round(value);
+            if (intValue != _integerLeft)
+            {
+                _integerLeft = intValue;
+                base.Left = _integerLeft;
+            }
+        }
+    }
+
+    public new double Top
+    {
+        get => base.Top;
+        set
+        {
+            int intValue = (int)Math.Round(value);
+            if (intValue != _integerTop)
+            {
+                _integerTop = intValue;
+                base.Top = _integerTop;
+            }
+        }
+    }
 
     public OverlayWindow()
     {
         InitializeComponent();
+        // 显示测试文本，方便调试拖动功能
+        SuggestionTextBlock.Text = "这是一个测试文本，用于调试浮动窗口的拖动功能。\n\n您可以尝试拖动此窗口来测试是否还有抖动问题。\n\n如果您看到此文本，说明窗口已经正确显示。";
+        MainGrid.Opacity = 1;
     }
 
     public void Configure(int overlayWidth, int fontSize, int autoHideSeconds)
@@ -107,66 +139,81 @@ public partial class OverlayWindow : Window
     }
 
     // Window drag handlers
-    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        // Only start dragging if left button is clicked on the drag area
-        if (e.LeftButton == MouseButtonState.Pressed)
-        {
-            _isDragging = true;
-            _dragStartPoint = e.GetPosition(this);
-            _windowStartPoint = new Point(Left, Top);
-            this.CaptureMouse();
-        }
-    }
+    private int _startX;
+    private int _startY;
+    private int _startLeft;
+    private int _startTop;
 
     private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        // If click is on the drag handle, start dragging
         if (DragHandle.IsMouseOver)
         {
-            _isDragging = true;
-            _dragStartPoint = e.GetPosition(this);
-            _windowStartPoint = new Point(Left, Top);
+            // 获取当前窗口的句柄和位置
+            IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            if (NativeMethods.GetWindowRect(hWnd, out RECT rect))
+            {
+                _startLeft = rect.Left;
+                _startTop = rect.Top;
+            }
+
+            Point startPoint = e.GetPosition(null);
+            _startX = (int)Math.Round(startPoint.X);
+            _startY = (int)Math.Round(startPoint.Y);
+
+            Console.WriteLine($"MouseDown - Start Point: X={_startX}, Y={_startY}");
+            Console.WriteLine($"Current Window Position: Left={_startLeft}, Top={_startTop}");
             this.CaptureMouse();
             e.Handled = true;
         }
     }
 
-    private void DragHandle_MouseDown(object sender, MouseButtonEventArgs e)
+    private void Window_PreviewMouseMove(object sender, MouseEventArgs e)
     {
-        // Handle drag handle click
-        if (e.LeftButton == MouseButtonState.Pressed)
+        if (this.IsMouseCaptured && e.LeftButton == MouseButtonState.Pressed)
         {
-            _isDragging = true;
-            _dragStartPoint = e.GetPosition(this);
-            _windowStartPoint = new Point(Left, Top);
-            this.CaptureMouse();
+            Point currentPoint = e.GetPosition(null);
+            int currentX = (int)Math.Round(currentPoint.X);
+            int currentY = (int)Math.Round(currentPoint.Y);
+
+            int deltaX = currentX - _startX;
+            int deltaY = currentY - _startY;
+
+            int newLeft = _startLeft + deltaX;
+            int newTop = _startTop + deltaY;
+
+            // 使用Windows API直接设置窗口位置
+            IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            NativeMethods.SetWindowPos(
+                hWnd,
+                IntPtr.Zero,
+                newLeft,
+                newTop,
+                0,
+                0,
+                NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE
+            );
+
+            Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
+            Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
+            Console.WriteLine($"MouseMove - New Position: Left={newLeft}, Top={newTop}");
+        }
+    }
+
+    private void Window_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (this.IsMouseCaptured)
+        {
+            Console.WriteLine($"MouseUp - Final Position: Left={Left}, Top={Top}");
+            this.ReleaseMouseCapture();
             e.Handled = true;
         }
     }
 
-    protected override void OnMouseMove(MouseEventArgs e)
+    protected override void OnMouseLeave(MouseEventArgs e)
     {
-        base.OnMouseMove(e);
-
-        if (_isDragging)
+        base.OnMouseLeave(e);
+        if (this.IsMouseCaptured)
         {
-            Point currentPoint = e.GetPosition(this);
-            double deltaX = currentPoint.X - _dragStartPoint.X;
-            double deltaY = currentPoint.Y - _dragStartPoint.Y;
-
-            Left = _windowStartPoint.X + deltaX;
-            Top = _windowStartPoint.Y + deltaY;
-        }
-    }
-
-    protected override void OnMouseUp(MouseButtonEventArgs e)
-    {
-        base.OnMouseUp(e);
-
-        if (_isDragging)
-        {
-            _isDragging = false;
             this.ReleaseMouseCapture();
         }
     }
