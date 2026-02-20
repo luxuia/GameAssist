@@ -196,12 +196,6 @@ public partial class OverlayWindow : Window
             Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
             Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
             Console.WriteLine($"MouseMove - New Position: Left={newLeft}, Top={newTop}");
-
-            // 更新起始位置，使下一次移动基于当前位置计算偏移量
-            _startLeft = newLeft;
-            _startTop = newTop;
-            _startX = currentX;
-            _startY = currentY;
         }
     }
 
