@@ -166,6 +166,16 @@ public partial class OverlayWindow : Window
 
     private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        // 检查是否点击了 ComboBox 区域
+        var comboBoxPos = e.GetPosition(PromptTypeComboBox);
+        if (comboBoxPos.X >= 0 && comboBoxPos.X <= PromptTypeComboBox.ActualWidth &&
+            comboBoxPos.Y >= 0 && comboBoxPos.Y <= PromptTypeComboBox.ActualHeight)
+        {
+            // 如果点击了 ComboBox，不处理拖动
+            e.Handled = false;
+            return;
+        }
+
         if (DragHandle.IsMouseOver)
         {
             // 获取当前窗口的句柄和位置
