@@ -46,6 +46,11 @@ public class AppConfig
     // Application Settings
     public bool AutoStart { get; set; } = false;
 
+    // Image Compression Settings
+    public bool EnableCompression { get; set; } = true;
+    public int CompressionQuality { get; set; } = 80;
+    public long MaxImageSizeKB { get; set; } = 2000;
+
     public static string ConfigPath => System.IO.Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "GameAssist",

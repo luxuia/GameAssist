@@ -189,7 +189,12 @@ public partial class MainWindow : Window
 
                 // Load the image
                 var bmp = new Bitmap(openFileDialog.FileName);
-                _lastUploadedImageBytes = _screenCaptureService.ConvertBitmapToBytes(bmp, ImageFormat.Png);
+                _lastUploadedImageBytes = _screenCaptureService.ConvertBitmapToBytes(
+                    bmp,
+                    ImageFormat.Jpeg,
+                    _config.EnableCompression,
+                    _config.CompressionQuality,
+                    _config.MaxImageSizeKB);
                 _lastUploadedImageWidth = bmp.Width;
                 _lastUploadedImageHeight = bmp.Height;
 
@@ -286,7 +291,12 @@ public partial class MainWindow : Window
 
             _viewModel.UpdateCaptureInfo();
 
-            var imageBytes = _screenCaptureService.ConvertBitmapToBytes(bmp, ImageFormat.Png);
+            var imageBytes = _screenCaptureService.ConvertBitmapToBytes(
+                bmp,
+                ImageFormat.Jpeg,
+                _config.EnableCompression,
+                _config.CompressionQuality,
+                _config.MaxImageSizeKB);
             var prompt = Dota2Prompts.GetPrompt(_config.SelectedPrompt, _config.CustomPrompt);
 
             UpdateStatus("Analyzing...");

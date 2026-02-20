@@ -26,6 +26,8 @@ public partial class SettingsWindow : Window
         OverlayWidthSlider.ValueChanged += (s, e) => OverlayWidthLabel.Text = ((int)e.NewValue).ToString();
         FontSizeSlider.ValueChanged += (s, e) => FontSizeLabel.Text = ((int)e.NewValue).ToString();
         AutoHideSlider.ValueChanged += (s, e) => AutoHideLabel.Text = $"{(int)e.NewValue}s";
+        CompressionQualitySlider.ValueChanged += (s, e) => CompressionQualityLabel.Text = ((int)e.NewValue).ToString();
+        MaxImageSizeSlider.ValueChanged += (s, e) => MaxImageSizeLabel.Text = $"{(int)e.NewValue} KB";
     }
 
     private void LoadSettings()
@@ -60,6 +62,13 @@ public partial class SettingsWindow : Window
         PromptTypeBox.SelectedIndex = (int)_config.SelectedPrompt;
         CustomPromptBox.Text = _config.CustomPrompt;
         UpdateCustomPromptState();
+
+        // Load compression settings
+        EnableCompressionCheckBox.IsChecked = _config.EnableCompression;
+        CompressionQualitySlider.Value = _config.CompressionQuality;
+        CompressionQualityLabel.Text = _config.CompressionQuality.ToString();
+        MaxImageSizeSlider.Value = _config.MaxImageSizeKB;
+        MaxImageSizeLabel.Text = $"{_config.MaxImageSizeKB} KB";
 
         // Update provider UI after layout is complete
         EventHandler? layoutHandler = null;
@@ -216,6 +225,10 @@ public partial class SettingsWindow : Window
 
         _config.SelectedPrompt = (PromptType)PromptTypeBox.SelectedIndex;
         _config.CustomPrompt = CustomPromptBox.Text;
+
+        _config.EnableCompression = EnableCompressionCheckBox.IsChecked ?? true;
+        _config.CompressionQuality = (int)CompressionQualitySlider.Value;
+        _config.MaxImageSizeKB = (long)MaxImageSizeSlider.Value;
 
         AppConfig.Save(_config);
     }

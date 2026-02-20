@@ -101,6 +101,25 @@
                     </StackPanel>
                 </GroupBox>
 
+                <!-- Image Compression Settings -->
+                <GroupBox Header="Image Compression" Padding="10" Margin="0,0,0,15">
+                    <StackPanel>
+                        <CheckBox x:Name="EnableCompressionCheckBox" Content="Enable image compression" IsChecked="True" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Compression Quality:" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Slider x:Name="CompressionQualitySlider" Width="200" Minimum="10" Maximum="100" Value="80" TickFrequency="5" IsSnapToTickEnabled="True"/>
+                            <TextBlock x:Name="CompressionQualityLabel" Text="80" Width="50" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Max Image Size (KB):" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Slider x:Name="MaxImageSizeSlider" Width="200" Minimum="500" Maximum="5000" Value="2000" TickFrequency="100" IsSnapToTickEnabled="True"/>
+                            <TextBlock x:Name="MaxImageSizeLabel" Text="2000 KB" Width="70" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
                 <!-- Prompt Configuration -->
                 <GroupBox Header="Prompt Configuration" Padding="10">
                     <StackPanel>
