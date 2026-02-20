@@ -148,9 +148,17 @@ public partial class OverlayWindow : Window
             int newLeft = (int)Math.Round(_startLeft + deltaX);
             int newTop = (int)Math.Round(_startTop + deltaY);
 
-            // 使用WPF的属性设置窗口位置，而不是Windows API
-            Left = newLeft;
-            Top = newTop;
+            // 使用Windows API直接设置窗口位置
+            IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            NativeMethods.SetWindowPos(
+                hWnd,
+                IntPtr.Zero,
+                newLeft,
+                newTop,
+                0,
+                0,
+                NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE
+            );
 
             Console.WriteLine($"MouseMove - Current Point: X={currentX}, Y={currentY}");
             Console.WriteLine($"MouseMove - Delta: X={deltaX}, Y={deltaY}");
